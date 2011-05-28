@@ -1,0 +1,22 @@
+Soundboard 1.0
+Zachary Thacker
+5/28/2011
+
+1. What is Soundboard?
+
+Soundboard is a java project designed to create a one-window collection of
+buttons that are linked to some sound file. The idea is for the user to create
+a directory of sound clips and auto-generate a window with all of those sounds
+available at the click of a button.
+
+2. What does it use?
+
+Soundboard is developed using SWT and jlayer.
+
+3. Inspiration?
+
+www.instantsfun.es
+
+4. Contact me!
+
+Email: zpthacker@gmail.com
