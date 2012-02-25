@@ -1,22 +1,30 @@
-Soundboard 1.0
 Zachary Thacker
-5/28/2011
+zpt23@drexel.edu
+CS338:GUI, Assignment 2
 
-1. What is Soundboard?
+Included in this archive are the following:
 
-Soundboard is a java project designed to create a one-window collection of
-buttons that are linked to some sound file. The idea is for the user to create
-a directory of sound clips and auto-generate a window with all of those sounds
-available at the click of a button.
+1. this README
+2. source files for MyActor
+3. a build.xml for use with ant
 
-2. What does it use?
+ant clean - clean binary files
+ant compile - compile source files
+ant run - execute java main class "MyActor"
+ant tar - create this archive
 
-Soundboard is developed using SWT and jlayer.
+General user guide:
 
-3. Inspiration?
+To create a new actor, click the "New" button. A new dialog should appear with
+a preview pane and some options. Fill in the name field and select your desired
+colors.
 
-www.instantsfun.es
+When finished, click "OK". Your new actor should appear in the list. Select it
+to view it in the preview pane.
 
-4. Contact me!
+To edit an existing actor, select one in the list and click "Edit". Your
+selected actor will appear in the editor dialog.
 
-Email: zpthacker@gmail.com
+To save any changes made, click "OK". To discard your changes, click "Cancel".
+
+To remove an actor from the list, select it and click "Remove".
