@@ -1,30 +1,30 @@
+Who?
 Zachary Thacker
-zpt23@drexel.edu
-CS338:GUI, Assignment 2
+zpthacker@gmail.com
 
-Included in this archive are the following:
+Zanzibar
 
-1. this README
-2. source files for MyActor
-3. a build.xml for use with ant
+What?
+Zanzibar is a soundboard application. Its name is a homage to the Halo 2
+multiplayer map of the same name. The multiplayer map featured a large
+structure facing a vast sea. This coastal structure is one of my favorite maps
+in one of my favorite series. The application is what I have called a
+"SEABoard" (it's a synonym for coast!), which stands for "Sound Effect
+Aggregation" Board.
 
-ant clean - clean binary files
-ant compile - compile source files
-ant run - execute java main class "MyActor"
-ant tar - create this archive
+Where?
+The source code is hosted on a public repo in github.
+git clone git@github.com:SirBraneDamuj/Soundboard.git
 
-General user guide:
+When?
+Version 1.0 of the application will be finished by the end of the winter term
+at Drexel University (so like...March something).
 
-To create a new actor, click the "New" button. A new dialog should appear with
-a preview pane and some options. Fill in the name field and select your desired
-colors.
+Why?
+www.instantsfun.es inspired me to write this program. I love the site, but I
+find myself wanting to add more sound effects. So I decided to make an
+application that lets me do a custom one.
 
-When finished, click "OK". Your new actor should appear in the list. Select it
-to view it in the preview pane.
-
-To edit an existing actor, select one in the list and click "Edit". Your
-selected actor will appear in the editor dialog.
-
-To save any changes made, click "OK". To discard your changes, click "Cancel".
-
-To remove an actor from the list, select it and click "Remove".
+How?
+Swing for GUI
+JLayer for mp3 playback
