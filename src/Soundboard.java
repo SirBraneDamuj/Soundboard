@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileNotFoundException;
 
 public class Soundboard {
   private static Soundboard instance;
@@ -21,11 +22,12 @@ public class Soundboard {
   }
 
   private void build() {
-    buildGrid();
-  }
+    JPanel mainPanel = new JPanel();
+    mainPanel.setLayout(new BorderLayout());
 
-  private void buildGrid() {
-    
+    JPanel buttonGrid = new Grid();
+    mainPanel.add(buttonGrid, BorderLayout.CENTER);    
+    mainFrame.setContentPane(mainPanel);
   }
 
   public void show() {
