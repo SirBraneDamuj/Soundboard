@@ -22,6 +22,10 @@ public class MP3Player {
 			pThread.start();
 		} catch(Exception e) {e.printStackTrace();}
 	}
+
+  public void stop() {
+    player.close();
+  }
 	
 	class PlayerThread extends Thread 
 	{		

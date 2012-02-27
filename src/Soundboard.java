@@ -13,6 +13,7 @@ public class Soundboard {
   }
 
   private JFrame mainFrame;
+  private PlayButton nowPlaying;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
@@ -27,12 +28,27 @@ public class Soundboard {
 
     JPanel buttonGrid = new Grid();
     mainPanel.add(buttonGrid, BorderLayout.CENTER);    
+
+    JButton stop = new JButton("STOP");
+    stop.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        nowPlaying.stop();
+      }
+    });
+    mainPanel.add(stop, BorderLayout.LINE_END);
     mainFrame.setContentPane(mainPanel);
   }
 
   public void show() {
     this.mainFrame.pack();
     this.mainFrame.setVisible(true);
+  }
+
+  public void nowPlaying(PlayButton p) {
+    if(nowPlaying != null) {
+      nowPlaying.stop();
+    }
+    nowPlaying = p;
   }
 
   public static void main(String[] args) {
