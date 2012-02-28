@@ -17,6 +17,7 @@ public class Soundboard {
 
   public Soundboard() {
     this.mainFrame = new JFrame();
+    this.mainFrame.setTitle("Soundboard");
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     build();
@@ -24,7 +25,7 @@ public class Soundboard {
 
   private void build() {
     JPanel mainPanel = new JPanel();
-    mainPanel.setLayout(new BorderLayout());
+    mainPanel.setLayout(new BorderLayout(20, 20));
 
     JPanel buttonGrid = new Grid();
     mainPanel.add(buttonGrid, BorderLayout.CENTER);    

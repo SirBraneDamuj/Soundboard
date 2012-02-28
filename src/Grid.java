@@ -12,7 +12,7 @@ public class Grid extends JPanel {
     this.soundList = DAO.getSoundList();
     this.numColumns = 6;
     this.numRows = soundList.length/numColumns + 1; //extra row for the remainder
-    this.setLayout(new GridLayout(numRows, numColumns));
+    this.setLayout(new GridLayout(numRows, numColumns, 10, 10));
     buildButtons();
   }
 
