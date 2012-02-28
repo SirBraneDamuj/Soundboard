@@ -37,6 +37,20 @@ public class Soundboard {
       }
     });
     mainPanel.add(stop, BorderLayout.LINE_END);
+
+    JPanel bottomButtons = new JPanel();
+    bottomButtons.setLayout(new BoxLayout(bottomButtons, BoxLayout.X_AXIS));
+    bottomButtons.add(Box.createHorizontalGlue());
+    JButton newButton = new JButton("New");
+    newButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+    bottomButtons.add(newButton);
+    bottomButtons.add(Box.createHorizontalGlue());
+    JButton editButton = new JButton("Edit");
+    editButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+    bottomButtons.add(editButton);
+    bottomButtons.add(Box.createHorizontalGlue());
+    mainPanel.add(bottomButtons, BorderLayout.PAGE_END);
+
     mainFrame.setContentPane(mainPanel);
   }
 
