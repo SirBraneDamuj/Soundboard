@@ -1,7 +1,9 @@
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
+import java.io.File;
 
 public class Soundboard {
   private static Soundboard instance;
@@ -14,11 +16,14 @@ public class Soundboard {
 
   private JFrame mainFrame;
   private PlayButton nowPlaying;
+  private JFileChooser fileChooser;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
     this.mainFrame.setTitle("Soundboard");
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    this.fileChooser = new JFileChooser();
+    this.fileChooser.setFileFilter(new MP3FileFilter());
 
     build();
   }
@@ -43,6 +48,11 @@ public class Soundboard {
     bottomButtons.add(Box.createHorizontalGlue());
     JButton newButton = new JButton("New");
     newButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+    newButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        addSongs();
+      }
+    });
     bottomButtons.add(newButton);
     bottomButtons.add(Box.createHorizontalGlue());
     JButton editButton = new JButton("Edit");
@@ -66,7 +76,24 @@ public class Soundboard {
     nowPlaying = p;
   }
 
+  public void addSongs() {
+    if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
+      File f = fileChooser.getSelectedFile();
+      System.out.println(f.getPath());
+    }
+  }
+
   public static void main(String[] args) {
     Soundboard.getInstance().show();
+  }
+}
+
+class MP3FileFilter extends FileFilter {
+  public boolean accept(File f) {
+    return f.getName().endsWith(".mp3") || f.isDirectory();
+  }
+
+  public String getDescription() {
+    return "Filter for mp3 files";
   }
 }
