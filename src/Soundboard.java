@@ -80,6 +80,8 @@ public class Soundboard {
     if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
       System.out.println(f.getPath());
+      NewSoundDialog d = new NewSoundDialog(f, mainFrame);
+      d.showDialog();
     }
   }
 
@@ -94,6 +96,6 @@ class MP3FileFilter extends FileFilter {
   }
 
   public String getDescription() {
-    return "Filter for mp3 files";
+    return "MP3 Files";
   }
 }
