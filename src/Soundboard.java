@@ -43,6 +43,7 @@ public class Soundboard {
     stop.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nowPlaying.stop();
+        nowPlaying = null;
       }
     });
     mainPanel.add(stop, BorderLayout.LINE_END);

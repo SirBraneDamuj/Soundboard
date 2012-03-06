@@ -2,25 +2,30 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import javazoom.jl.player.Player;
+import javazoom.jl.player.advanced.*;
 
 public class MP3Player {
 
   private Sound sound;
-	private InputStream is;
-  private Player player;
+  private AdvancedPlayer player;
 	
 	public MP3Player(Sound sound)
 	{
     this.sound = sound;
 	}
 	
-	public void play()
+	public void play(final PlayButton p)
 	{
-    stop();
     try {
-      this.is = new FileInputStream(sound.getFile());
-      this.player = new Player(is);
+      this.player = new AdvancedPlayer(new FileInputStream(p.getSound().getFile()));
+      this.player.setPlayBackListener(new PlaybackListener() {
+       public void playbackStarted(PlaybackEvent evt) {
+         p.setEnabled(false);
+       }
+       public void playbackFinished(PlaybackEvent evt) {
+         p.setEnabled(true);
+       }
+      });
     } catch(Exception e) {e.printStackTrace();}
     PlayerThread pThread = new PlayerThread();
     pThread.start();
@@ -28,22 +33,16 @@ public class MP3Player {
 
   public void stop() {
     if(player != null) {
-      player.close();
+      player.stop();
     }
   }
 
-  public boolean isComplete() {
-    return player.isComplete();
-  }
-	
 	class PlayerThread extends Thread 
 	{		
 		public void run()
 		{
 			try {
 				player.play();
-        System.out.println("XYZ");
-        player.close();
 			}
 			catch(Exception e) {e.printStackTrace();}
 		}

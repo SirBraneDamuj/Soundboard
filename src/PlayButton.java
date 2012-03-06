@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
 
+import javazoom.jl.player.advanced.*;
+
 public class PlayButton extends JButton {
   private Sound sound;
   private MP3Player p;
@@ -10,14 +12,10 @@ public class PlayButton extends JButton {
   public PlayButton(Sound sound) {
     super("Play");
     this.sound = sound;
-    try {
-      this.p = new MP3Player(getSound());
-    } catch(FileNotFoundException e) {
-      e.printStackTrace();
-    }
+    this.p = new MP3Player(getSound());
     addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        p.play();
+        p.play(PlayButton.this);
         Soundboard.getInstance().nowPlaying(PlayButton.this);
       }
     });
