@@ -4,25 +4,21 @@ import java.awt.event.*;
 import java.io.FileNotFoundException;
 
 public class PlayButton extends JButton {
-  private int row;
-  private int column;
-  private String filename;
+  private Sound sound;
   private MP3Player p;
 
-  public PlayButton(String filename, int row, int column) {
+  public PlayButton(Sound sound) {
     super("Play");
-    this.row = row;
-    this.column = column;
-    this.filename = "Sounds/" + filename;
+    this.sound = sound;
+    try {
+      this.p = new MP3Player(getSound());
+    } catch(FileNotFoundException e) {
+      e.printStackTrace();
+    }
     addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        try {
-          p = new MP3Player(getFilename());
-          p.play();
-          Soundboard.getInstance().nowPlaying(PlayButton.this);
-        } catch(FileNotFoundException e) {
-          e.printStackTrace();
-        }
+        p.play();
+        Soundboard.getInstance().nowPlaying(PlayButton.this);
       }
     });
   }
@@ -31,7 +27,7 @@ public class PlayButton extends JButton {
     p.stop();
   }
 
-  public String getFilename() {
-    return filename;
+  public Sound getSound() {
+    return sound;
   }
 }

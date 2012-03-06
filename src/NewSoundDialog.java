@@ -69,4 +69,12 @@ public class NewSoundDialog extends JDialog {
     pack();
     setVisible(true);
   }
+
+  public String getSoundName() {
+    return name.getText();
+  }
+
+  public String getSoundDescription() {
+    return description.getText();
+  }
 }

@@ -6,25 +6,34 @@ import javazoom.jl.player.Player;
 
 public class MP3Player {
 
+  private Sound sound;
 	private InputStream is;
-	private Player player;
+  private Player player;
 	
-	public MP3Player(String fileName) throws FileNotFoundException
+	public MP3Player(Sound sound)
 	{
-		is = new FileInputStream(fileName);
+    this.sound = sound;
 	}
 	
 	public void play()
 	{
-		try {
-			player = new Player(is);
-			PlayerThread pThread = new PlayerThread();
-			pThread.start();
-		} catch(Exception e) {e.printStackTrace();}
+    stop();
+    try {
+      this.is = new FileInputStream(sound.getFile());
+      this.player = new Player(is);
+    } catch(Exception e) {e.printStackTrace();}
+    PlayerThread pThread = new PlayerThread();
+    pThread.start();
 	}
 
   public void stop() {
-    player.close();
+    if(player != null) {
+      player.close();
+    }
+  }
+
+  public boolean isComplete() {
+    return player.isComplete();
   }
 	
 	class PlayerThread extends Thread 
@@ -33,6 +42,8 @@ public class MP3Player {
 		{
 			try {
 				player.play();
+        System.out.println("XYZ");
+        player.close();
 			}
 			catch(Exception e) {e.printStackTrace();}
 		}

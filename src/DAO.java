@@ -4,15 +4,21 @@ import java.util.Arrays;
 import java.nio.channels.FileChannel;
 
 public class DAO {
-  public static Vector<String> getSoundList() {
+  public static Vector<Sound> getSoundList() {
     File dir = new File("Sounds");
     FilenameFilter filter = new FilenameFilter() {
       public boolean accept(File dir, String name) {
         return name.endsWith("mp3");
       }
     };
-    String[] contents = dir.list(filter);
-    return contents == null ? new Vector<String>() : new Vector<String>(Arrays.asList(contents));
+    File[] contents = dir.listFiles(filter);
+    Vector<Sound> retval = new Vector<Sound>();
+    if(contents != null) {
+      for(File f : contents) {
+        retval.add(new Sound(f.getName(), "", f));
+      }
+    }
+    return retval;
   }
 
   public static void copyFile(File sourceFile) throws IOException {

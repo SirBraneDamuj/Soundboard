@@ -36,7 +36,7 @@ public class Soundboard {
     mainPanel.setLayout(new BorderLayout(20, 20));
 
     JScrollPane buttonPane = new JScrollPane(buttonGrid);
-    buttonPane.setPreferredSize(new Dimension(400, 400));
+    buttonPane.setPreferredSize(new Dimension(800, 400));
     mainPanel.add(buttonPane, BorderLayout.CENTER);    
 
     JButton stop = new JButton("STOP");
@@ -74,7 +74,7 @@ public class Soundboard {
   }
 
   public void nowPlaying(PlayButton p) {
-    if(nowPlaying != null) {
+    if(nowPlaying != null && nowPlaying != p) {
       nowPlaying.stop();
     }
     nowPlaying = p;
@@ -86,8 +86,9 @@ public class Soundboard {
       System.out.println(f.getPath());
       NewSoundDialog d = new NewSoundDialog(f, mainFrame);
       d.showDialog();
+      Sound newSound = new Sound(d.getSoundName(), d.getSoundDescription(), f);
       try {
-        buttonGrid.add(f);
+        buttonGrid.add(newSound);
       } catch(IOException e) {
         e.printStackTrace();
       }
