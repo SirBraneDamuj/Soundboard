@@ -43,6 +43,11 @@ public class NewSoundDialog extends JDialog {
     buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
     buttonsPanel.add(Box.createHorizontalGlue());
     JButton ok = new JButton("OK");
+    ok.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        setVisible(false);
+      }
+    });
     buttonsPanel.add(ok);
     buttonsPanel.add(Box.createHorizontalGlue());
     JButton cancel = new JButton("Cancel");

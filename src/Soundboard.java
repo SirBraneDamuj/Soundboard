@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.io.File;
+import java.io.IOException;
 
 public class Soundboard {
   private static Soundboard instance;
@@ -17,6 +18,7 @@ public class Soundboard {
   private JFrame mainFrame;
   private PlayButton nowPlaying;
   private JFileChooser fileChooser;
+  private Grid buttonGrid;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
@@ -24,6 +26,7 @@ public class Soundboard {
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.fileChooser = new JFileChooser();
     this.fileChooser.setFileFilter(new MP3FileFilter());
+    this.buttonGrid = new Grid();
 
     build();
   }
@@ -32,8 +35,9 @@ public class Soundboard {
     JPanel mainPanel = new JPanel();
     mainPanel.setLayout(new BorderLayout(20, 20));
 
-    JPanel buttonGrid = new Grid();
-    mainPanel.add(buttonGrid, BorderLayout.CENTER);    
+    JScrollPane buttonPane = new JScrollPane(buttonGrid);
+    buttonPane.setPreferredSize(new Dimension(400, 400));
+    mainPanel.add(buttonPane, BorderLayout.CENTER);    
 
     JButton stop = new JButton("STOP");
     stop.addActionListener(new ActionListener() {
@@ -82,6 +86,13 @@ public class Soundboard {
       System.out.println(f.getPath());
       NewSoundDialog d = new NewSoundDialog(f, mainFrame);
       d.showDialog();
+      try {
+        buttonGrid.add(f);
+      } catch(IOException e) {
+        e.printStackTrace();
+      }
+      mainFrame.pack();
+      mainFrame.validate();
     }
   }
 
