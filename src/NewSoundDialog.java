@@ -7,6 +7,7 @@ public class NewSoundDialog extends JDialog {
   private JTextField name;
   private JTextArea description;
   private File f;
+  private boolean ok;
 
   public NewSoundDialog(File f, Frame owner) {
     super(owner, "New sound", true);
@@ -45,6 +46,7 @@ public class NewSoundDialog extends JDialog {
     JButton ok = new JButton("OK");
     ok.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
+        setOk(true);
         setVisible(false);
       }
     });
@@ -53,6 +55,7 @@ public class NewSoundDialog extends JDialog {
     JButton cancel = new JButton("Cancel");
     cancel.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
+        setOk(false);
         setVisible(false);
       }
     });
@@ -76,5 +79,13 @@ public class NewSoundDialog extends JDialog {
 
   public String getSoundDescription() {
     return description.getText();
+  }
+  
+  public boolean getOk() {
+    return ok;
+  }
+
+  private void setOk(boolean b) {
+    ok = b;
   }
 }

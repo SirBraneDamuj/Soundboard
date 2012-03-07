@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class Soundboard {
   private static Soundboard instance;
@@ -26,7 +27,14 @@ public class Soundboard {
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.fileChooser = new JFileChooser();
     this.fileChooser.setFileFilter(new MP3FileFilter());
-    this.buttonGrid = new Grid();
+    try {
+      this.buttonGrid = new Grid();
+    } catch(SQLException e) {
+      JOptionPane.showMessageDialog(mainFrame,
+          "There was an unknown error while creating the grid. Try clearing the database and try again.",
+          "DB error",
+          JOptionPane.ERROR_MESSAGE);
+    }
 
     build();
   }
@@ -36,7 +44,8 @@ public class Soundboard {
     mainPanel.setLayout(new BorderLayout(20, 20));
 
     JScrollPane buttonPane = new JScrollPane(buttonGrid);
-    buttonPane.setPreferredSize(new Dimension(800, 400));
+    buttonPane.setPreferredSize(new Dimension(850, 400));
+    buttonPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     mainPanel.add(buttonPane, BorderLayout.CENTER);    
 
     JButton stop = new JButton("STOP");
@@ -84,21 +93,39 @@ public class Soundboard {
   public void addSongs() {
     if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
-      System.out.println(f.getPath());
       NewSoundDialog d = new NewSoundDialog(f, mainFrame);
       d.showDialog();
-      Sound newSound = new Sound(d.getSoundName(), d.getSoundDescription(), f);
-      try {
-        buttonGrid.add(newSound);
-      } catch(IOException e) {
-        e.printStackTrace();
+      if(!d.getOk()) {
+        return;
       }
+      Sound newSound = null;
+      try {
+        newSound = new Sound(d.getSoundName(), d.getSoundDescription(), DAO.copyFile(f));
+      } catch(IOException e) {
+        JOptionPane.showMessageDialog(mainFrame,
+            "There was an unknown error while copying the sound file",
+            "Error copying sound",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      if(!newSound.save()) {
+        JOptionPane.showMessageDialog(mainFrame,
+            "Unable to save the sound to the DB",
+            "DB error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      buttonGrid.add(newSound);
       mainFrame.pack();
       mainFrame.validate();
     }
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
+    DAO dao = DAO.getInstance();
+    if(!dao.tableExists("sounds")) {
+      dao.createTable("sounds", "name,description null,filename");
+    }
     Soundboard.getInstance().show();
   }
 }

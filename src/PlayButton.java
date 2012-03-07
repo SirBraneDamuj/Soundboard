@@ -19,6 +19,7 @@ public class PlayButton extends JButton {
         Soundboard.getInstance().nowPlaying(PlayButton.this);
       }
     });
+    setToolTipText(sound.getDescription());
   }
 
   public void stop() {

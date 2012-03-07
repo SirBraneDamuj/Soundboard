@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 
 public class Sound {
   private String name;
@@ -34,5 +35,15 @@ public class Sound {
   public void setFile() {
     this.file = file;
   }
+  
+  public boolean save() {
+    return DAO.getInstance().insertValues("sounds", quotacise(name), quotacise(description), quotacise(file.getAbsolutePath()));
+  }
 
+  private String quotacise(String thing) {
+    if(thing == null || thing.equals("")) {
+      return "null";
+    }
+    return "\"" + thing + "\"";
+  }
 }

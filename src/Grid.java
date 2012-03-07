@@ -5,6 +5,7 @@ import java.util.Vector;
 import java.util.Arrays;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class Grid extends JPanel {
   private int numRows;
@@ -14,11 +15,11 @@ public class Grid extends JPanel {
   private int currentRow = 0;
   private int currentColumn = -1;
 
-  public Grid() {
+  public Grid() throws SQLException {
     super();
-    this.soundList = DAO.getSoundList();
+    this.soundList = DAO.getInstance().getSoundsInDB();
     this.numRows = 10;
-    this.numColumns = 6;
+    this.numColumns = 5;
     this.setLayout(new GridLayout(numRows, numColumns, 10, 10));
     this.cells = new JPanel[numRows][numColumns];
     buildButtons();
@@ -40,13 +41,7 @@ public class Grid extends JPanel {
     }
   }
 
-  public void add(Sound newSound) throws IOException {
-    if(soundList.contains(newSound)) {
-      return;
-    }
-    else {
-      DAO.copyFile(newSound.getFile());
-    }
+  public void add(Sound newSound) {
     soundList.add(newSound);
     addNewButton(newSound);
   }

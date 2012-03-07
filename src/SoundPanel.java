@@ -14,7 +14,9 @@ public class SoundPanel extends JPanel {
 
   private void build() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    setPreferredSize(new Dimension(140, 60));
     add(play);
-    add(new JLabel(sound.getName()));
+    add(new JLabel("<html>" + sound.getName() + "</html>"));
+    setToolTipText(sound.getDescription());
   }
 }
