@@ -4,7 +4,7 @@
   </description>
   <property name="src" location="src"/>
   <property name="build" location="build"/>
-  <property name="db" location="test.db"/>
+  <property name="db" location="soundboard.db"/>
   <property name="sounds" location="Sounds"/>
 
   <path id="class.path">
