@@ -48,7 +48,7 @@ public class Grid extends JPanel {
 
   private void addNewButton(Sound s) {
     currentColumn++;
-    if(currentColumn > numColumns) {
+    if(currentColumn >= numColumns) {
       currentColumn = 0;
       currentRow++;
     }
