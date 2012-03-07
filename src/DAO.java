@@ -56,7 +56,6 @@ public class DAO {
         preparedStatement += values[i] + ", ";
       }
     }
-    System.out.println(preparedStatement);
     try {
       Statement stat = conn.createStatement();
       stat.executeUpdate(preparedStatement);
