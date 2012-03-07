@@ -21,9 +21,11 @@ public class MP3Player {
       this.player.setPlayBackListener(new PlaybackListener() {
        public void playbackStarted(PlaybackEvent evt) {
          p.setEnabled(false);
+         p.setFinished(false);
        }
        public void playbackFinished(PlaybackEvent evt) {
          p.setEnabled(true);
+         p.setFinished(true);
        }
       });
     } catch(Exception e) {e.printStackTrace();}

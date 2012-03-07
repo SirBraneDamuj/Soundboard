@@ -51,8 +51,10 @@ public class Soundboard {
     JButton stop = new JButton("STOP");
     stop.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        nowPlaying.stop();
-        nowPlaying = null;
+        if(nowPlaying != null && !nowPlaying.isFinished()) {
+          nowPlaying.stop();
+          nowPlaying = null;
+        }
       }
     });
     mainPanel.add(stop, BorderLayout.LINE_END);
@@ -84,7 +86,7 @@ public class Soundboard {
   }
 
   public void nowPlaying(PlayButton p) {
-    if(nowPlaying != null && nowPlaying != p) {
+    if(nowPlaying != null && nowPlaying != p && !nowPlaying.isFinished()) {
       nowPlaying.stop();
     }
     nowPlaying = p;
