@@ -1,6 +1,6 @@
 <project name="Soundboard" default="run" basedir=".">
   <description>
-    Soundboard
+    Soundboard v0.1
   </description>
   <property name="src" location="src"/>
   <property name="build" location="build"/>
