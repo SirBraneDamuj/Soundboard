@@ -128,7 +128,13 @@ public class Soundboard {
     if(!dao.tableExists("sounds")) {
       dao.createTable("sounds", "name,description null,filename");
     }
-    Soundboard.getInstance().show();
+    File soundsDir = new File("Sounds");
+    if(soundsDir.exists() && soundsDir.isDirectory()) {
+      Soundboard.getInstance().show();
+    }
+    else {
+      System.out.println("Error: Missing Sounds directory. Please make sure there is a directory named Sounds at the same level as this jar.");
+    }
   }
 }
 
