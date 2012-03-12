@@ -47,7 +47,7 @@ public class DAO {
   //values should be in the order of their columns in the table
   //strings need escaped quotes in them
   public boolean insertValues(String tableName, String... values) {
-    String preparedStatement = "insert into " + tableName + " values (";
+    String preparedStatement = "insert into " + tableName + " values (null,"; //auto increment
     for(int i=0;i<values.length;i++) {
       if(i == values.length-1) {
         preparedStatement += values[i] + ");";
@@ -79,15 +79,55 @@ public class DAO {
     }
   }
 
-  public Vector<Sound> getSoundsInDB() throws SQLException {
-    Vector<Sound> retval = new Vector<Sound>();
+  public Vector<Sound> getSoundsInDB() {
+    try {
+      Vector<Sound> retval = new Vector<Sound>();
+      Statement stat = conn.createStatement();
+      ResultSet rs = stat.executeQuery("select * from sounds;");
+      while(rs.next()) {
+        Sound s = new Sound(rs.getInt("id"), rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
+        retval.add(s);
+      }
+      rs.close();
+      return retval;
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  public Sound getSoundForID(int id) throws SQLException {
+    System.out.println(id);
     Statement stat = conn.createStatement();
-    ResultSet rs = stat.executeQuery("select * from sounds;");
+    ResultSet rs = stat.executeQuery("select * from sounds where id=" + id + ";");
+    if(rs.next()) {
+      Sound newSound = new Sound(rs.getInt("id"), rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
+      rs.close();
+      return newSound;
+    }
+    else {
+      rs.close();
+      return null;
+    }
+  }
+
+  public Vector<List> getListsInDB() throws SQLException {
+    Vector<List> retval = new Vector<List>();
+    Statement stat = conn.createStatement();
+    ResultSet rs = stat.executeQuery("select * from lists;");
     while(rs.next()) {
-      Sound s = new Sound(rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
-      retval.add(s);
+      List l = new List(rs.getInt("id"), rs.getString("name"), rs.getString("description"));
+      System.out.println(l.getID());
+      retval.add(l);
     }
     rs.close();
+    for(List l : retval) {
+      ResultSet sounds = stat.executeQuery("select * from soundlist where listid=1;");
+      while(sounds.next()) {
+        l.addSound(getSoundForID(sounds.getInt("soundid")));
+      }
+      sounds.close();
+    }
     return retval;
   }
 

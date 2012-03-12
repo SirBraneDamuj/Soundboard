@@ -1,5 +1,7 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileNotFoundException;
@@ -20,22 +22,22 @@ public class Soundboard {
   private PlayButton nowPlaying;
   private JFileChooser fileChooser;
   private Grid buttonGrid;
+  private JList soundList;
+  private DefaultListModel listModel;
+  private List mainList;
+  private JPanel gridCards;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
-    this.mainFrame.setTitle("Soundboard");
+    this.mainFrame.setTitle("Zanzibar");
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.fileChooser = new JFileChooser();
     this.fileChooser.setFileFilter(new MP3FileFilter());
-    try {
-      this.buttonGrid = new Grid();
-    } catch(SQLException e) {
-      JOptionPane.showMessageDialog(mainFrame,
-          "There was an unknown error while creating the grid. Try clearing the database and try again.",
-          "DB error",
-          JOptionPane.ERROR_MESSAGE);
-    }
-
+    this.listModel = new DefaultListModel();
+    this.soundList = new JList(listModel);
+    this.mainList = new List();
+    this.gridCards = new JPanel(new CardLayout());
+    this.buttonGrid = mainList.getGrid();
     build();
   }
 
@@ -43,10 +45,56 @@ public class Soundboard {
     JPanel mainPanel = new JPanel();
     mainPanel.setLayout(new BorderLayout(20, 20));
 
-    JScrollPane buttonPane = new JScrollPane(buttonGrid);
+    JPanel rightSide = new JPanel();
+    gridCards.add(mainList.getGrid(), Integer.toString(mainList.getID()));
+    soundList.setSelectedIndex(0);
+    rightSide.setLayout(new BorderLayout());
+    JScrollPane buttonPane = new JScrollPane(gridCards);
     buttonPane.setPreferredSize(new Dimension(850, 400));
+    buttonPane.setMinimumSize(new Dimension(850, 400));
     buttonPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-    mainPanel.add(buttonPane, BorderLayout.CENTER);    
+    rightSide.add(buttonPane, BorderLayout.CENTER);
+    rightSide.add(new JLabel("Sounds"), BorderLayout.PAGE_START);
+
+    JPanel leftSide = new JPanel();
+    leftSide.setLayout(new BorderLayout());
+    soundList.setMinimumSize(new Dimension(150, 400));
+    soundList.addListSelectionListener(new ListSelectionListener() {
+      public void valueChanged(ListSelectionEvent e) {
+        if(!e.getValueIsAdjusting()) {
+          System.out.println(soundList.getSelectedIndex());
+          changeList(soundList.getSelectedIndex());
+        }
+      }
+    });
+    listModel.addElement(mainList);
+    try {
+      for(List l : DAO.getInstance().getListsInDB()) {
+        gridCards.add(l.getGrid(), Integer.toString(l.getID()));
+        listModel.addElement(l);
+      }
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+    JScrollPane listPane = new JScrollPane(soundList);
+    leftSide.add(listPane, BorderLayout.CENTER);
+    leftSide.add(new JLabel("Lists"), BorderLayout.PAGE_START);
+
+    JPanel bottomLeftButtons = new JPanel();
+    JButton newList = new JButton("New");
+    newList.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        addList();
+      }
+    });
+    JButton editList = new JButton("Edit");
+    bottomLeftButtons.add(newList);
+    bottomLeftButtons.add(editList);
+    leftSide.add(bottomLeftButtons, BorderLayout.PAGE_END);
+
+    JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSide, rightSide);
+    
+    mainPanel.add(split, BorderLayout.CENTER);
 
     JButton stop = new JButton("STOP");
     stop.addActionListener(new ActionListener() {
@@ -60,7 +108,6 @@ public class Soundboard {
     mainPanel.add(stop, BorderLayout.LINE_END);
 
     JPanel bottomButtons = new JPanel();
-    bottomButtons.setLayout(new BoxLayout(bottomButtons, BoxLayout.X_AXIS));
     bottomButtons.add(Box.createHorizontalGlue());
     JButton newButton = new JButton("New");
     newButton.setAlignmentY(Component.CENTER_ALIGNMENT);
@@ -75,7 +122,7 @@ public class Soundboard {
     editButton.setAlignmentY(Component.CENTER_ALIGNMENT);
     bottomButtons.add(editButton);
     bottomButtons.add(Box.createHorizontalGlue());
-    mainPanel.add(bottomButtons, BorderLayout.PAGE_END);
+    rightSide.add(bottomButtons, BorderLayout.PAGE_END);
 
     mainFrame.setContentPane(mainPanel);
   }
@@ -95,14 +142,14 @@ public class Soundboard {
   public void addSongs() {
     if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
-      NewSoundDialog d = new NewSoundDialog(f, mainFrame);
+      NewDialog d = new NewDialog(f.getName(), mainFrame);
       d.showDialog();
       if(!d.getOk()) {
         return;
       }
       Sound newSound = null;
       try {
-        newSound = new Sound(d.getSoundName(), d.getSoundDescription(), DAO.copyFile(f));
+        newSound = new Sound(d.getName(), d.getDescription(), DAO.copyFile(f));
       } catch(IOException e) {
         JOptionPane.showMessageDialog(mainFrame,
             "There was an unknown error while copying the sound file",
@@ -117,24 +164,52 @@ public class Soundboard {
             JOptionPane.ERROR_MESSAGE);
         return;
       }
-      buttonGrid.add(newSound);
+      mainList.addSound(newSound);
       mainFrame.pack();
       mainFrame.validate();
     }
   }
 
+  public void addList() {
+    NewDialog d = new NewDialog("New List", mainFrame);
+    d.showDialog();
+    if(!d.getOk()) {
+      return;
+    }
+    List newList = new List(d.getName(), d.getDescription());
+    if(!newList.save()) {
+      JOptionPane.showMessageDialog(mainFrame,
+          "Unable to save the list to the DB",
+          "DB error",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    listModel.addElement(newList);
+    gridCards.add(newList.getGrid(), Integer.toString(newList.getID()));
+  }
+
+  public void changeList(int index) {
+    CardLayout cl = (CardLayout)(gridCards.getLayout());
+    List selectedList = (List)(listModel.elementAt(index));
+    cl.show(gridCards, Integer.toString(selectedList.getID()));
+  }
+
   public static void main(String[] args) throws Exception {
     DAO dao = DAO.getInstance();
     if(!dao.tableExists("sounds")) {
-      dao.createTable("sounds", "name,description null,filename");
+      dao.createTable("sounds", "id integer primary key,name,description null,filename");
+    }
+    if(!dao.tableExists("lists")) {
+      dao.createTable("lists", "id integer primary key,name,description null");
+    }
+    if(!dao.tableExists("soundlist")) {
+      dao.createTable("soundlist", "soundid integer,listid integer, primary key (soundid, listid), foriegn key (soundid) references sounds(id), foreign key(listid) references lists(id)");
     }
     File soundsDir = new File("Sounds");
-    if(soundsDir.exists() && soundsDir.isDirectory()) {
-      Soundboard.getInstance().show();
+    if(!soundsDir.exists()) {
+      soundsDir.mkdir();
     }
-    else {
-      System.out.println("Error: Missing Sounds directory. Please make sure there is a directory named Sounds at the same level as this jar.");
-    }
+    Soundboard.getInstance().show();
   }
 }
 

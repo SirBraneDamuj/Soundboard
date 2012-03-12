@@ -2,9 +2,15 @@ import java.io.File;
 import java.io.IOException;
 
 public class Sound {
+  private int id;
   private String name;
   private String description;
   private File file;
+
+  public Sound(int id, String name, String description, File file) {
+    this(name, description, file);
+    this.id = id;
+  }
 
   public Sound(String name, String description, File file) {
     this.name = name;

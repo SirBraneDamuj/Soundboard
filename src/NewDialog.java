@@ -3,17 +3,15 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 
-public class NewSoundDialog extends JDialog {
+public class NewDialog extends JDialog {
   private JTextField name;
   private JTextArea description;
-  private File f;
   private boolean ok;
 
-  public NewSoundDialog(File f, Frame owner) {
-    super(owner, "New sound", true);
-    this.f = f;
+  public NewDialog(String name, Frame owner) {
+    super(owner, "New", true);
     this.name = new JTextField(30);
-    this.name.setText(f.getName());
+    this.name.setText(name);
     this.description = new JTextArea(2, 30);
     build();
   }
@@ -73,11 +71,11 @@ public class NewSoundDialog extends JDialog {
     setVisible(true);
   }
 
-  public String getSoundName() {
+  public String getName() {
     return name.getText();
   }
 
-  public String getSoundDescription() {
+  public String getDescription() {
     return description.getText();
   }
   

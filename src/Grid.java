@@ -12,12 +12,12 @@ public class Grid extends JPanel {
   private int numColumns;
   private Vector<Sound> soundList;
   private JPanel[][] cells;
-  private int currentRow = 0;
-  private int currentColumn = -1;
+  private int currentRow;
+  private int currentColumn;
 
-  public Grid() throws SQLException {
+  public Grid(Vector<Sound> sounds) {
     super();
-    this.soundList = DAO.getInstance().getSoundsInDB();
+    this.soundList = sounds;
     this.numRows = 10;
     this.numColumns = 5;
     this.setLayout(new GridLayout(numRows, numColumns, 10, 10));
@@ -27,6 +27,8 @@ public class Grid extends JPanel {
 
   public void buildButtons() {
     int count = 0;
+    currentRow = 0;
+    currentColumn = -1;
     for(int i=0;i<numRows;i++) {
       for(int j=0;j<numColumns;j++) {
         cells[i][j] = new JPanel();
@@ -42,7 +44,6 @@ public class Grid extends JPanel {
   }
 
   public void add(Sound newSound) {
-    soundList.add(newSound);
     addNewButton(newSound);
   }
 
