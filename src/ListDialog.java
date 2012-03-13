@@ -8,7 +8,7 @@ public class ListDialog extends ModelDialog {
     build();
   }
 
-  public void build() {
+  protected void build() {
     addButtons();
   }
 }

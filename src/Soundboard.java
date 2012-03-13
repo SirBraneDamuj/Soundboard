@@ -22,12 +22,12 @@ public class Soundboard {
   private JFrame mainFrame;
   private PlayButton nowPlaying;
   private JFileChooser fileChooser;
-  private Grid buttonGrid;
-  private JList soundList;
+  private Vector<ListViewController> listViewControllers;
+  private JList listOfLists;
   private DefaultListModel listModel;
-  private List mainList;
   private JPanel gridCards;
-  private Vector<List> lists;
+  private CardLayout cardLayout;
+  private DAO dao;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
@@ -35,53 +35,69 @@ public class Soundboard {
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.fileChooser = new JFileChooser();
     this.fileChooser.setFileFilter(new MP3FileFilter());
-    this.lists = DAO.getInstance().getListsInDB();
+    this.cardLayout = new CardLayout();
+    this.gridCards = new JPanel(cardLayout);
+    this.listViewControllers = new Vector<ListViewController>();
     this.listModel = new DefaultListModel();
-    this.soundList = new JList(listModel);
-    this.mainList = new List();
-    this.gridCards = new JPanel(new CardLayout());
-    this.buttonGrid = mainList.getGrid();
-    build();
+    this.listOfLists = new JList(listModel);
+    this.dao = DAO.getInstance();
+    initializeViewControllers();
+    initializeComponents();
   }
 
-  private void build() {
+  private void initializeViewControllers() {
+    Vector<Sound> sounds = dao.getSoundsInDB();
+    ListViewController mainList = new ListViewController(new List(), sounds);
+    listViewControllers.add(mainList);
+    listModel.addElement(mainList);
+    for(List l : dao.getListsInDB()) {
+      Vector<Sound> listSounds = new Vector<Sound>();
+      for(Sound s : sounds) {
+        if(s.getListID() == l.getID()) {
+          listSounds.add(s);
+        }
+      }
+      ListViewController lvc = new ListViewController(l, listSounds);
+      listViewControllers.add(lvc);
+      listModel.addElement(lvc);
+    }
+  }
+
+  private void initializeComponents() {
+    //init main panel with borderlayout
     JPanel mainPanel = new JPanel();
     mainPanel.setLayout(new BorderLayout(20, 20));
+    JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, initLeftSide(), initRightSide());
+    mainPanel.add(split, BorderLayout.CENTER);
+    mainPanel.add(initStopButton(), BorderLayout.LINE_END);
 
-    JPanel rightSide = new JPanel();
-    gridCards.add(mainList.getGrid(), Integer.toString(mainList.getID()));
-    soundList.setSelectedIndex(0);
-    rightSide.setLayout(new BorderLayout());
-    JScrollPane buttonPane = new JScrollPane(gridCards);
-    buttonPane.setPreferredSize(new Dimension(850, 400));
-    buttonPane.setMinimumSize(new Dimension(850, 400));
-    buttonPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-    rightSide.add(buttonPane, BorderLayout.CENTER);
-    rightSide.add(new JLabel("Sounds"), BorderLayout.PAGE_START);
+    mainFrame.setContentPane(mainPanel);
+  }
 
+  private JPanel initLeftSide() {
     JPanel leftSide = new JPanel();
     leftSide.setLayout(new BorderLayout());
-    soundList.setMinimumSize(new Dimension(150, 400));
-    soundList.addListSelectionListener(new ListSelectionListener() {
+
+    //init list
+    listOfLists.setMinimumSize(new Dimension(150, 400));
+    listOfLists.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
         if(!e.getValueIsAdjusting()) {
-          changeList(soundList.getSelectedIndex());
+          changeList(listOfLists.getSelectedIndex());
         }
       }
     });
-    lists.add(mainList);
-    listModel.addElement(mainList);
-    for(List l : lists) {
-      if(l != mainList) {
-        gridCards.add(l.getGrid(), Integer.toString(l.getID()));
-        listModel.addElement(l);
-      }
-    }
-    JScrollPane listPane = new JScrollPane(soundList);
+    listOfLists.setSelectedIndex(0);
+
+    //init list scroll pane
+    JScrollPane listPane = new JScrollPane(listOfLists);
     leftSide.add(listPane, BorderLayout.CENTER);
+
+    //init left side label
     leftSide.add(new JLabel("Lists"), BorderLayout.PAGE_START);
 
-    JPanel bottomLeftButtons = new JPanel();
+    //init new/edit buttons
+    JPanel bottomButtons = new JPanel();
     JButton newList = new JButton("New");
     newList.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -89,25 +105,32 @@ public class Soundboard {
       }
     });
     JButton editList = new JButton("Edit");
-    bottomLeftButtons.add(newList);
-    bottomLeftButtons.add(editList);
-    leftSide.add(bottomLeftButtons, BorderLayout.PAGE_END);
+    bottomButtons.add(newList);
+    bottomButtons.add(editList);
+    leftSide.add(bottomButtons, BorderLayout.PAGE_END);
+    return leftSide;
+  }
 
-    JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSide, rightSide);
-    
-    mainPanel.add(split, BorderLayout.CENTER);
+  private JPanel initRightSide() {
+    JPanel rightSide = new JPanel();
+    rightSide.setLayout(new BorderLayout());
 
-    JButton stop = new JButton("STOP");
-    stop.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(nowPlaying != null && !nowPlaying.isFinished()) {
-          nowPlaying.stop();
-          nowPlaying = null;
-        }
-      }
-    });
-    mainPanel.add(stop, BorderLayout.LINE_END);
+    //init cards for card layout
+    for(ListViewController l : listViewControllers) {
+      gridCards.add(l.getGrid(), Integer.toString(l.getList().getID()));
+    }
 
+    //init grid scrollpane
+    JScrollPane buttonPane = new JScrollPane(gridCards);
+    buttonPane.setPreferredSize(new Dimension(850, 400));
+    buttonPane.setMinimumSize(new Dimension(850, 400));
+    buttonPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    rightSide.add(buttonPane, BorderLayout.CENTER);
+
+    //init right side label
+    rightSide.add(new JLabel("Sounds"), BorderLayout.PAGE_START);
+
+    //init new button
     JPanel bottomButtons = new JPanel();
     bottomButtons.add(Box.createHorizontalGlue());
     JButton newButton = new JButton("New");
@@ -119,13 +142,21 @@ public class Soundboard {
     });
     bottomButtons.add(newButton);
     bottomButtons.add(Box.createHorizontalGlue());
-    JButton editButton = new JButton("Edit");
-    editButton.setAlignmentY(Component.CENTER_ALIGNMENT);
-    bottomButtons.add(editButton);
-    bottomButtons.add(Box.createHorizontalGlue());
     rightSide.add(bottomButtons, BorderLayout.PAGE_END);
+    return rightSide;
+  }
 
-    mainFrame.setContentPane(mainPanel);
+  public JButton initStopButton() {
+    JButton stop = new JButton("STOP");
+    stop.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(nowPlaying != null && !nowPlaying.isFinished()) {
+          nowPlaying.stop();
+          nowPlaying = null;
+        }
+      }
+    });
+    return stop;
   }
 
   public void show() {
@@ -143,20 +174,25 @@ public class Soundboard {
   public void addSongs() {
     if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
-      SoundDialog d = new SoundDialog(f.getName(), lists, mainFrame);
+      SoundDialog d = new SoundDialog(f.getName(), listViewControllers, mainFrame);
       d.showDialog();
       if(!d.getOk()) {
         return;
       }
       Sound newSound = null;
+      ListViewController lvc = listViewControllers.get(d.getSelectedIndex());
       try {
-        newSound = new Sound(DAO.getInstance().getLargestIDFor("sounds")+1, d.getName(), d.getDescription(), DAO.copyFile(f));
+        newSound = new Sound(DAO.getInstance().getLargestIDFor("sounds")+1, lvc.getList().getID(), d.getName(), d.getDescription(), DAO.copyFile(f));
       } catch(IOException e) {
         JOptionPane.showMessageDialog(mainFrame,
             "There was an unknown error while copying the sound file",
             "Error copying sound",
             JOptionPane.ERROR_MESSAGE);
         return;
+      }
+      listViewControllers.get(0).addSound(newSound);
+      if(newSound.getListID() != -1) {
+        lvc.addSound(newSound);
       }
       if(!newSound.save()) {
         JOptionPane.showMessageDialog(mainFrame,
@@ -165,14 +201,6 @@ public class Soundboard {
             JOptionPane.ERROR_MESSAGE);
         return;
       }
-      List l = d.getSelectedList();
-      if(l != null) {
-        l.addSound(newSound);
-        l.save();
-      }
-      mainList.addSound(newSound);
-      mainFrame.pack();
-      mainFrame.validate();
     }
   }
 
@@ -190,37 +218,67 @@ public class Soundboard {
           JOptionPane.ERROR_MESSAGE);
       return;
     }
-    listModel.addElement(newList);
-    lists.add(newList);
-    gridCards.add(newList.getGrid(), Integer.toString(newList.getID()));
+    ListViewController lvc = new ListViewController(newList, new Vector<Sound>());
+    listViewControllers.add(lvc);
+    listModel.addElement(lvc);
+    gridCards.add(lvc.getGrid(), Integer.toString(lvc.getList().getID()));
   }
 
   public void changeList(int index) {
-    CardLayout cl = (CardLayout)(gridCards.getLayout());
-    List selectedList = (List)(listModel.elementAt(index));
-    cl.show(gridCards, Integer.toString(selectedList.getID()));
+    int selectedList = listOfLists.getSelectedIndex();
+    cardLayout.show(gridCards, Integer.toString(listViewControllers.get(selectedList).getList().getID()));
     mainFrame.pack();
     mainFrame.validate();
   }
 
   public void editSound(SoundPanel p) {
-    
+    Sound s = p.getSound();
+    System.out.println(s.getListID());
+    SoundDialog d = new SoundDialog(s, listViewControllers, mainFrame);
+    d.showDialog();
+    if(d.getOk()) {
+      s.setName(d.getName());
+      s.setDescription(d.getDescription());
+      ListViewController lvc = listViewControllers.get(d.getSelectedIndex());
+      if(lvc.getList().getID() == s.getListID()) { //list did not change
+        lvc.soundDidEdit(s);
+      }
+      else if(lvc.getList().getID() == -1) { //list was set to "all sounds", remove from current list
+        removeSoundFromList(s);
+        s.setListID(-1);
+      }
+      else {
+        if(s.getListID() != -1) {
+          removeSoundFromList(s);
+        }
+        s.setListID(lvc.getList().getID());
+        lvc.addSound(s);
+      }
+      listViewControllers.get(0).soundDidEdit(s);
+      s.save();
+      SwingUtilities.updateComponentTreeUI(mainFrame); //<3
+    }
   }
 
   public void deleteSound(SoundPanel p) {
     
   }
+  
+  public void removeSoundFromList(Sound s) {
+    for(int i=0;i<listViewControllers.size();i++) {
+      if(listViewControllers.get(i).getList().getID() == s.getListID()) {
+        listViewControllers.get(i).soundWasRemoved(s);
+      }
+    }
+  }
 
   public static void main(String[] args) throws Exception {
     DAO dao = DAO.getInstance();
     if(!dao.tableExists("sounds")) {
-      dao.createTable("sounds", "id integer primary key autoincrement,name,description null,filename");
+      dao.createTable("sounds", "id integer primary key autoincrement, listid integer, name,description null,filename");
     }
     if(!dao.tableExists("lists")) {
       dao.createTable("lists", "id integer primary key autoincrement,name,description null");
-    }
-    if(!dao.tableExists("soundlist")) {
-      dao.createTable("soundlist", "soundid integer,listid integer, primary key (soundid, listid), foreign key (soundid) references sounds(id), foreign key(listid) references lists(id)");
     }
     File soundsDir = new File("Sounds");
     if(!soundsDir.exists()) {
@@ -258,3 +316,4 @@ class PopClickListener extends MouseAdapter {
     menu.show(e.getComponent(), e.getX(), e.getY());
   }
 }
+

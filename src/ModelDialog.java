@@ -41,6 +41,8 @@ public abstract class ModelDialog extends JDialog {
     this.add(mainPanel);
   }
 
+  protected abstract void build();
+
   protected void addButtons() {
     JPanel buttonsPanel = new JPanel();
     buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));

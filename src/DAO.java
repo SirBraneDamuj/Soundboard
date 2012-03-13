@@ -71,11 +71,12 @@ public class DAO {
 
   public boolean saveSound(Sound s) {
     try {
-      PreparedStatement prep = conn.prepareStatement("replace into sounds (id, name, description, filename) values (?, ?, ?, ?);");
+      PreparedStatement prep = conn.prepareStatement("replace into sounds (id, listid, name, description, filename) values (?, ?, ?, ?, ?);");
       prep.setInt(1, s.getID());
-      prep.setString(2, s.getName());
-      prep.setString(3, s.getDescription());
-      prep.setString(4, s.getFile().getAbsolutePath());
+      prep.setInt(2, s.getListID());
+      prep.setString(3, s.getName());
+      prep.setString(4, s.getDescription());
+      prep.setString(5, s.getFile().getAbsolutePath());
       prep.execute();
       return true;
     } catch(SQLException e) {
@@ -92,14 +93,6 @@ public class DAO {
       prep.setString(2, l.getName());
       prep.setString(3, l.getDescription());
       prep.execute();
-
-      prep = conn.prepareStatement("replace into soundlist (soundid, listid) values (?, ?);");
-      for(Sound s : l.getSoundList()) {
-        prep.setInt(1, s.getID());
-        prep.setInt(2, l.getID());
-        prep.addBatch();
-      }
-      prep.executeBatch();
       return true;
     } catch(SQLException e) {
       e.printStackTrace();
@@ -143,7 +136,7 @@ public class DAO {
       Statement stat = conn.createStatement();
       ResultSet rs = stat.executeQuery("select * from sounds;");
       while(rs.next()) {
-        Sound s = new Sound(rs.getInt("id"), rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
+        Sound s = new Sound(rs.getInt("id"), rs.getInt("listid"), rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
         retval.add(s);
       }
       rs.close();
@@ -158,7 +151,7 @@ public class DAO {
     Statement stat = conn.createStatement();
     ResultSet rs = stat.executeQuery("select * from sounds where id=" + id + ";");
     if(rs.next()) {
-      Sound newSound = new Sound(rs.getInt("id"), rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
+      Sound newSound = new Sound(rs.getInt("id"), rs.getInt("listid"), rs.getString("name"), rs.getString("description"), new File(rs.getString("filename")));
       rs.close();
       return newSound;
     }
@@ -178,17 +171,27 @@ public class DAO {
         retval.add(l);
       }
       rs.close();
-      for(List l : retval) {
-        ResultSet sounds = stat.executeQuery("select * from soundlist where listid="+l.getID()+";");
-        while(sounds.next()) {
-          l.addSound(getSoundForID(sounds.getInt("soundid")));
-        }
-        sounds.close();
-      }
     } catch(SQLException e) {
       e.printStackTrace();
     }
     return retval;
+  }
+
+  public Vector<Sound> getSoundsForList(int listID) {
+    Vector<Sound> soundList = new Vector<Sound>();
+    try {
+      Statement stat = conn.createStatement();
+      ResultSet sounds = stat.executeQuery("select * from sounds where listid="+listID+";");
+      while(sounds.next()) {
+        soundList.add(getSoundForID(sounds.getInt("id")));
+      }
+      sounds.close();
+    } catch(SQLException e) {
+      e.printStackTrace();
+      System.out.println(e.getMessage());
+      return null;
+    }
+    return soundList;
   }
 
   //returns null if the destination already exists
