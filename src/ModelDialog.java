@@ -1,23 +1,23 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 
-public class NewDialog extends JDialog {
-  private JTextField name;
-  private JTextArea description;
-  private boolean ok;
+public abstract class ModelDialog extends JDialog {
+  protected JPanel mainPanel;
+  protected JTextField name;
+  protected JTextArea description;
+  protected boolean ok;
 
-  public NewDialog(String name, Frame owner) {
-    super(owner, "New", true);
+  public ModelDialog(String titleText, String name, Frame owner) {
+    super(owner, titleText, true);
     this.name = new JTextField(30);
+    this.mainPanel = new JPanel();
     this.name.setText(name);
     this.description = new JTextArea(2, 30);
-    build();
+    buildBase();
   }
 
-  private void build() {
-    JPanel mainPanel = new JPanel();
+  private void buildBase() {
     mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
     mainPanel.add(Box.createVerticalGlue());
@@ -38,6 +38,10 @@ public class NewDialog extends JDialog {
 
     mainPanel.add(Box.createVerticalGlue());
 
+    this.add(mainPanel);
+  }
+
+  protected void addButtons() {
     JPanel buttonsPanel = new JPanel();
     buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
     buttonsPanel.add(Box.createHorizontalGlue());
@@ -63,7 +67,6 @@ public class NewDialog extends JDialog {
 
     mainPanel.add(Box.createVerticalGlue());
 
-    this.add(mainPanel);
   }
 
   public void showDialog() {

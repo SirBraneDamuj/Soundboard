@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Vector;
 
 public class Soundboard {
   private static Soundboard instance;
@@ -26,6 +27,7 @@ public class Soundboard {
   private DefaultListModel listModel;
   private List mainList;
   private JPanel gridCards;
+  private Vector<List> lists;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
@@ -33,6 +35,7 @@ public class Soundboard {
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.fileChooser = new JFileChooser();
     this.fileChooser.setFileFilter(new MP3FileFilter());
+    this.lists = DAO.getInstance().getListsInDB();
     this.listModel = new DefaultListModel();
     this.soundList = new JList(listModel);
     this.mainList = new List();
@@ -62,19 +65,17 @@ public class Soundboard {
     soundList.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
         if(!e.getValueIsAdjusting()) {
-          System.out.println(soundList.getSelectedIndex());
           changeList(soundList.getSelectedIndex());
         }
       }
     });
+    lists.add(mainList);
     listModel.addElement(mainList);
-    try {
-      for(List l : DAO.getInstance().getListsInDB()) {
+    for(List l : lists) {
+      if(l != mainList) {
         gridCards.add(l.getGrid(), Integer.toString(l.getID()));
         listModel.addElement(l);
       }
-    } catch(SQLException e) {
-      e.printStackTrace();
     }
     JScrollPane listPane = new JScrollPane(soundList);
     leftSide.add(listPane, BorderLayout.CENTER);
@@ -142,14 +143,14 @@ public class Soundboard {
   public void addSongs() {
     if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
-      NewDialog d = new NewDialog(f.getName(), mainFrame);
+      SoundDialog d = new SoundDialog(f.getName(), lists, mainFrame);
       d.showDialog();
       if(!d.getOk()) {
         return;
       }
       Sound newSound = null;
       try {
-        newSound = new Sound(d.getName(), d.getDescription(), DAO.copyFile(f));
+        newSound = new Sound(DAO.getInstance().getLargestIDFor("sounds")+1, d.getName(), d.getDescription(), DAO.copyFile(f));
       } catch(IOException e) {
         JOptionPane.showMessageDialog(mainFrame,
             "There was an unknown error while copying the sound file",
@@ -164,6 +165,11 @@ public class Soundboard {
             JOptionPane.ERROR_MESSAGE);
         return;
       }
+      List l = d.getSelectedList();
+      if(l != null) {
+        l.addSound(newSound);
+        l.save();
+      }
       mainList.addSound(newSound);
       mainFrame.pack();
       mainFrame.validate();
@@ -171,12 +177,12 @@ public class Soundboard {
   }
 
   public void addList() {
-    NewDialog d = new NewDialog("New List", mainFrame);
+    ListDialog d = new ListDialog("New List", mainFrame);
     d.showDialog();
     if(!d.getOk()) {
       return;
     }
-    List newList = new List(d.getName(), d.getDescription());
+    List newList = new List(DAO.getInstance().getLargestIDFor("lists")+1, d.getName(), d.getDescription());
     if(!newList.save()) {
       JOptionPane.showMessageDialog(mainFrame,
           "Unable to save the list to the DB",
@@ -185,6 +191,7 @@ public class Soundboard {
       return;
     }
     listModel.addElement(newList);
+    lists.add(newList);
     gridCards.add(newList.getGrid(), Integer.toString(newList.getID()));
   }
 
@@ -192,18 +199,28 @@ public class Soundboard {
     CardLayout cl = (CardLayout)(gridCards.getLayout());
     List selectedList = (List)(listModel.elementAt(index));
     cl.show(gridCards, Integer.toString(selectedList.getID()));
+    mainFrame.pack();
+    mainFrame.validate();
+  }
+
+  public void editSound(SoundPanel p) {
+    
+  }
+
+  public void deleteSound(SoundPanel p) {
+    
   }
 
   public static void main(String[] args) throws Exception {
     DAO dao = DAO.getInstance();
     if(!dao.tableExists("sounds")) {
-      dao.createTable("sounds", "id integer primary key,name,description null,filename");
+      dao.createTable("sounds", "id integer primary key autoincrement,name,description null,filename");
     }
     if(!dao.tableExists("lists")) {
-      dao.createTable("lists", "id integer primary key,name,description null");
+      dao.createTable("lists", "id integer primary key autoincrement,name,description null");
     }
     if(!dao.tableExists("soundlist")) {
-      dao.createTable("soundlist", "soundid integer,listid integer, primary key (soundid, listid), foriegn key (soundid) references sounds(id), foreign key(listid) references lists(id)");
+      dao.createTable("soundlist", "soundid integer,listid integer, primary key (soundid, listid), foreign key (soundid) references sounds(id), foreign key(listid) references lists(id)");
     }
     File soundsDir = new File("Sounds");
     if(!soundsDir.exists()) {
@@ -220,5 +237,24 @@ class MP3FileFilter extends FileFilter {
 
   public String getDescription() {
     return "MP3 Files";
+  }
+}
+
+class PopClickListener extends MouseAdapter {
+  public void mousePressed(MouseEvent e) {
+    if(e.isPopupTrigger()) {
+      doPop(e);
+    }
+  }
+
+  public void mouseReleased(MouseEvent e) {
+    if(e.isPopupTrigger()) {
+      doPop(e);
+    }
+  }
+
+  private void doPop(MouseEvent e) {
+    SoundMenu menu = new SoundMenu(e);
+    menu.show(e.getComponent(), e.getX(), e.getY());
   }
 }

@@ -39,6 +39,8 @@ public class DAO {
       stat.executeUpdate("create table " + tableName + " (" + columns + ")");
       stat.close();
     } catch(SQLException e) {
+      e.printStackTrace();
+      System.out.println(e.getMessage());
       return false;
     }
     return true;
@@ -65,6 +67,62 @@ public class DAO {
       return false;
     }
     return true;
+  }
+
+  public boolean saveSound(Sound s) {
+    try {
+      PreparedStatement prep = conn.prepareStatement("replace into sounds (id, name, description, filename) values (?, ?, ?, ?);");
+      prep.setInt(1, s.getID());
+      prep.setString(2, s.getName());
+      prep.setString(3, s.getDescription());
+      prep.setString(4, s.getFile().getAbsolutePath());
+      prep.execute();
+      return true;
+    } catch(SQLException e) {
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  public boolean saveList(List l) {
+    try {
+      PreparedStatement prep = conn.prepareStatement("replace into lists (id, name, description) values (?, ?, ?);");
+      prep.setInt(1, l.getID());
+      prep.setString(2, l.getName());
+      prep.setString(3, l.getDescription());
+      prep.execute();
+
+      prep = conn.prepareStatement("replace into soundlist (soundid, listid) values (?, ?);");
+      for(Sound s : l.getSoundList()) {
+        prep.setInt(1, s.getID());
+        prep.setInt(2, l.getID());
+        prep.addBatch();
+      }
+      prep.executeBatch();
+      return true;
+    } catch(SQLException e) {
+      e.printStackTrace();
+      System.out.println(e.getMessage());
+      return false;
+    }
+  }
+
+  public int getLargestIDFor(String tableName) {
+    try {
+      PreparedStatement prep = conn.prepareStatement("select * from SQLITE_SEQUENCE where name=?;");
+      prep.setString(1, tableName);
+      ResultSet rs = prep.executeQuery();
+      if(rs.next()) {
+        int retval = rs.getInt("seq");
+        rs.close();
+        return retval;
+      }
+    } catch(SQLException e) {
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+    }
+    return -1;
   }
 
   public boolean tableExists(String tableName) {
@@ -97,7 +155,6 @@ public class DAO {
   }
 
   public Sound getSoundForID(int id) throws SQLException {
-    System.out.println(id);
     Statement stat = conn.createStatement();
     ResultSet rs = stat.executeQuery("select * from sounds where id=" + id + ";");
     if(rs.next()) {
@@ -111,22 +168,25 @@ public class DAO {
     }
   }
 
-  public Vector<List> getListsInDB() throws SQLException {
+  public Vector<List> getListsInDB() {
     Vector<List> retval = new Vector<List>();
-    Statement stat = conn.createStatement();
-    ResultSet rs = stat.executeQuery("select * from lists;");
-    while(rs.next()) {
-      List l = new List(rs.getInt("id"), rs.getString("name"), rs.getString("description"));
-      System.out.println(l.getID());
-      retval.add(l);
-    }
-    rs.close();
-    for(List l : retval) {
-      ResultSet sounds = stat.executeQuery("select * from soundlist where listid=1;");
-      while(sounds.next()) {
-        l.addSound(getSoundForID(sounds.getInt("soundid")));
+    try { 
+      Statement stat = conn.createStatement();
+      ResultSet rs = stat.executeQuery("select * from lists;");
+      while(rs.next()) {
+        List l = new List(rs.getInt("id"), rs.getString("name"), rs.getString("description"));
+        retval.add(l);
       }
-      sounds.close();
+      rs.close();
+      for(List l : retval) {
+        ResultSet sounds = stat.executeQuery("select * from soundlist where listid="+l.getID()+";");
+        while(sounds.next()) {
+          l.addSound(getSoundForID(sounds.getInt("soundid")));
+        }
+        sounds.close();
+      }
+    } catch(SQLException e) {
+      e.printStackTrace();
     }
     return retval;
   }

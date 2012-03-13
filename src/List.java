@@ -44,14 +44,18 @@ public class List {
   }
 
   public boolean save() {
-    return DAO.getInstance().insertValues("lists", quotacise(name), quotacise(description));
+    return DAO.getInstance().saveList(this);
   }
 
+  @Override
   public String toString() {
     return this.name;
   }
 
   public void addSound(Sound s) {
+    if(getID() >= 0) {
+      System.out.println("XYZ");
+    }
     sounds.add(s);
     grid.add(s);
   }

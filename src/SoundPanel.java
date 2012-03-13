@@ -16,7 +16,8 @@ public class SoundPanel extends JPanel {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     setPreferredSize(new Dimension(140, 60));
     add(play);
-    add(new JLabel("<html>" + sound.getName() + "</html>"));
+    add(new JLabel("<html>" + sound.getName() + "</html>")); //for some reason this enables word wrap
     setToolTipText(sound.getDescription());
+    addMouseListener(new PopClickListener());
   }
 }

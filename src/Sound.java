@@ -43,7 +43,7 @@ public class Sound {
   }
   
   public boolean save() {
-    return DAO.getInstance().insertValues("sounds", quotacise(name), quotacise(description), quotacise(file.getAbsolutePath()));
+    return DAO.getInstance().saveSound(this);
   }
 
   private String quotacise(String thing) {
@@ -51,5 +51,9 @@ public class Sound {
       return "null";
     }
     return "\"" + thing + "\"";
+  }
+
+  public int getID() {
+    return id;
   }
 }
