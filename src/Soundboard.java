@@ -28,6 +28,7 @@ public class Soundboard {
   private JPanel gridCards;
   private CardLayout cardLayout;
   private DAO dao;
+  private JTextArea listDescription;
 
   public Soundboard() {
     this.mainFrame = new JFrame();
@@ -42,6 +43,7 @@ public class Soundboard {
     this.listModel = new DefaultListModel();
     this.listOfLists = new JList(listModel);
     this.dao = DAO.getInstance();
+    this.listDescription = new JTextArea();
     initializeViewControllers();
     initializeComponents();
 
@@ -68,12 +70,29 @@ public class Soundboard {
   private void initializeComponents() {
     //init main panel with borderlayout
     JPanel mainPanel = new JPanel();
-    mainPanel.setLayout(new BorderLayout(20, 20));
+    mainPanel.setLayout(new BorderLayout(5, 5));
     JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, initLeftSide(), initRightSide());
     mainPanel.add(split, BorderLayout.CENTER);
-    mainPanel.add(initStopButton(), BorderLayout.LINE_END);
+    mainPanel.add(initLineEnd(), BorderLayout.LINE_END);
 
     mainFrame.setContentPane(mainPanel);
+  }
+
+  private JPanel initLineEnd() {
+    JScrollPane descPane = new JScrollPane(listDescription);
+    descPane.setPreferredSize(new Dimension(100,100));
+    listDescription.setLineWrap(true);
+    JPanel lineEnd = new JPanel();
+    lineEnd.setLayout(new BoxLayout(lineEnd, BoxLayout.Y_AXIS));
+    lineEnd.add(Box.createVerticalGlue());
+    lineEnd.add(initStopButton());
+    lineEnd.add(Box.createVerticalGlue());
+    JLabel l = new JLabel("List Description");
+    l.setAlignmentX(Component.LEFT_ALIGNMENT);
+    lineEnd.add(l);
+    lineEnd.add(descPane);
+    lineEnd.add(Box.createVerticalGlue());
+    return lineEnd;
   }
 
   private JPanel initLeftSide() {
@@ -170,6 +189,7 @@ public class Soundboard {
         }
       }
     });
+    stop.setPreferredSize(new Dimension(50,200));
     return stop;
   }
 
@@ -245,7 +265,9 @@ public class Soundboard {
       cardLayout.show(gridCards, Integer.toString(-1));
       return;
     }
-    cardLayout.show(gridCards, Integer.toString(listViewControllers.get(selectedList).getList().getID()));
+    ListViewController lvc = listViewControllers.get(selectedList);
+    cardLayout.show(gridCards, Integer.toString(lvc.getList().getID()));
+    listDescription.setText(lvc.getList().getDescription());
     mainFrame.pack();
     mainFrame.validate();
   }
