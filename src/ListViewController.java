@@ -58,11 +58,17 @@ public class ListViewController {
     soundModels.remove(s);
     int count = index;
     for(int i=gridLocation[0];i<Grid.numRows;i++) {
-      for(int j=gridLocation[1];j<Grid.numColumns;j++) {
+      int start = gridLocation[1];
+      if(i != gridLocation[0]) {
+        start = 0;
+      }
+      for(int j=start;j<Grid.numColumns;j++) {
         if(count >= soundModels.size()) {
+          System.out.println("Removing last sound");
           grid.removePanelAtLocation(i,j); //remove the last one since we are iterating over fewer sounds now
           return;
         }
+        System.out.println("Setting sound to position "+soundModels.get(count).getName()+" "+i+" "+j);
         grid.setPanelAtLocation(new SoundPanel(soundModels.get(count)), i, j);
         count++;
       }
