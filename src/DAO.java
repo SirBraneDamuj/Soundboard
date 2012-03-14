@@ -161,6 +161,17 @@ public class DAO {
     }
   }
 
+  public void deleteSound(Sound s) {
+    try {
+      Statement stat = conn.createStatement();
+      stat.executeUpdate("delete from sounds where id="+s.getID()+";");
+    } catch(SQLException e) {
+      e.printStackTrace();
+      System.out.println(e.getMessage());
+    }
+    s.getFile().delete(); //leave me alone vim :( it's not an error
+  }
+
   public Vector<List> getListsInDB() {
     Vector<List> retval = new Vector<List>();
     try { 

@@ -171,7 +171,7 @@ public class Soundboard {
     nowPlaying = p;
   }
 
-  public void addSongs() {
+  public void addSongs() { //why is this called this
     if(fileChooser.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
       File f = fileChooser.getSelectedFile();
       SoundDialog d = new SoundDialog(f.getName(), listViewControllers, mainFrame);
@@ -201,6 +201,7 @@ public class Soundboard {
             JOptionPane.ERROR_MESSAGE);
         return;
       }
+      SwingUtilities.updateComponentTreeUI(mainFrame); //<3
     }
   }
 
@@ -261,7 +262,14 @@ public class Soundboard {
   }
 
   public void deleteSound(SoundPanel p) {
-    
+    Sound s = p.getSound();
+    if(s.getListID() != -1) {
+      removeSoundFromList(s);
+    }
+    s.setListID(-1);
+    removeSoundFromList(s);
+    dao.deleteSound(s);
+    SwingUtilities.updateComponentTreeUI(mainFrame); //<3
   }
   
   public void removeSoundFromList(Sound s) {

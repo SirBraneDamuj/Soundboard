@@ -41,7 +41,6 @@ public class ListViewController {
       lastLocation[0] += 1;
     }
     grid.setPanelAtLocation(new SoundPanel(s), lastLocation[0], lastLocation[1]);
-    grid.validate();
   }
 
   public void soundDidEdit(Sound newSound) {
@@ -51,7 +50,6 @@ public class ListViewController {
         grid.setPanelAtLocation(new SoundPanel(s), location[0], location[1]);
       }
     }
-    grid.validate();
   }
 
   public void soundWasRemoved(Sound s) {
