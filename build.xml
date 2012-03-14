@@ -10,6 +10,7 @@
   <property name="icon" location="zanzibar_icon.png"/>
   <property name="jlayer" location="lib/jl1.0.1.jar"/>
   <property name="sqlite" location="lib/sqlitejdbc-v056.jar"/>
+  <property name="lib" location="lib"/>
 
   <path id="class.path">
     <fileset dir="${lib}">
