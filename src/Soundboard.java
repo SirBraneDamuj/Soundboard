@@ -80,6 +80,7 @@ public class Soundboard {
 
   private JPanel initLineEnd() {
     JScrollPane descPane = new JScrollPane(listDescription);
+    descPane.getVerticalScrollBar().setUnitIncrement(4);
     descPane.setPreferredSize(new Dimension(100,100));
     listDescription.setLineWrap(true);
     JPanel lineEnd = new JPanel();
@@ -112,6 +113,7 @@ public class Soundboard {
 
     //init list scroll pane
     JScrollPane listPane = new JScrollPane(listOfLists);
+    listPane.getVerticalScrollBar().setUnitIncrement(4);
     leftSide.add(listPane, BorderLayout.CENTER);
 
     //init left side label
@@ -158,6 +160,7 @@ public class Soundboard {
     buttonPane.setPreferredSize(new Dimension(850, 400));
     buttonPane.setMinimumSize(new Dimension(850, 400));
     buttonPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    buttonPane.getVerticalScrollBar().setUnitIncrement(4);
     rightSide.add(buttonPane, BorderLayout.CENTER);
 
     //init right side label

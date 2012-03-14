@@ -34,6 +34,7 @@ public abstract class ModelDialog extends JDialog {
     JLabel desc = new JLabel("Description: ");
     descPanel.add(desc);
     JScrollPane descPane = new JScrollPane(description);
+    descPane.getVerticalScrollBar().setUnitIncrement(4);
     descPane.setPreferredSize(new Dimension(300, 100));
     description.setLineWrap(true);
     descPanel.add(descPane);
