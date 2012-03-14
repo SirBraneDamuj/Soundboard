@@ -7,13 +7,15 @@ public class SoundDialog extends ModelDialog {
   private JComboBox listComboBox;
 
   public SoundDialog(String name, Vector<ListViewController> lvcs, Frame owner) {
-    super("Sound", name, owner);
+    super("New Sound", name, owner);
     this.listComboBox = new JComboBox(lvcs);
     build();
   }
 
   public SoundDialog(Sound s, Vector<ListViewController> lvcs, Frame owner) {
-    this(s.getName(), lvcs, owner);
+    super("Edit Sound", s.getName(), owner);
+    this.listComboBox = new JComboBox(lvcs);
+    build();
     this.description.setText(s.getDescription());
     for(int i=0;i<lvcs.size();i++) {
       if(lvcs.get(i).getList().getID() == s.getListID()) {

@@ -298,7 +298,21 @@ public class Soundboard {
   }
 
   public void editList() {
-
+    int index = listOfLists.getSelectedIndex();
+    if(index == -1) {
+      return;
+    }
+    ListViewController lvc = listViewControllers.get(listOfLists.getSelectedIndex());
+    if(lvc.getList().getID() == -1) {
+      return;
+    }
+    ListDialog d = new ListDialog(lvc, mainFrame);
+    d.showDialog();
+    if(d.getOk()) {
+      lvc.getList().setName(d.getName());
+      lvc.getList().setDescription(d.getDescription());
+      SwingUtilities.updateComponentTreeUI(mainFrame); //<3
+    }
   }
 
   public void deleteList() {
