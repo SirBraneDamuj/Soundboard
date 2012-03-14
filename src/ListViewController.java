@@ -69,6 +69,18 @@ public class ListViewController {
     }
   }
 
+  //returns all of the IDs of sounds that were in this list
+  public int[] willDelete() {
+    int[] soundIDs = new int[soundModels.size()];
+    for(int i=0;i<soundModels.size();i++) {
+      Sound s = soundModels.get(i);
+      soundIDs[i] = s.getID();
+      s.setListID(-1);
+      s.save();
+    }
+    return soundIDs;
+  }
+
   public int[] gridLocationForSound(Sound s) {
     int count = 0;
     int[] retval = {-1, -1};
@@ -86,6 +98,15 @@ public class ListViewController {
       }
     }
     return retval;
+  }
+
+  private int indexForSoundID(int id) {
+    for(int i=0;i<soundModels.size();i++) {
+      if(soundModels.get(i).getID() == id) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   public List getList() {

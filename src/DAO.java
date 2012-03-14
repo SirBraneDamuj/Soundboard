@@ -172,6 +172,16 @@ public class DAO {
     s.getFile().delete(); //leave me alone vim :( it's not an error
   }
 
+  public void deleteList(int listID) {
+    try {
+      Statement stat = conn.createStatement();
+      stat.executeUpdate("delete from lists where id="+listID+";");
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.out.println(e.getMessage());
+    }
+  }
+
   public Vector<List> getListsInDB() {
     Vector<List> retval = new Vector<List>();
     try { 

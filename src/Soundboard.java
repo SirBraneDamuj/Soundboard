@@ -32,6 +32,7 @@ public class Soundboard {
   public Soundboard() {
     this.mainFrame = new JFrame();
     this.mainFrame.setTitle("Zanzibar");
+    this.mainFrame.setIconImage(new ImageIcon("zanzibar_icon.png").getImage());
     this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.fileChooser = new JFileChooser();
     this.fileChooser.setFileFilter(new MP3FileFilter());
@@ -43,6 +44,7 @@ public class Soundboard {
     this.dao = DAO.getInstance();
     initializeViewControllers();
     initializeComponents();
+
   }
 
   private void initializeViewControllers() {
@@ -96,7 +98,7 @@ public class Soundboard {
     //init left side label
     leftSide.add(new JLabel("Lists"), BorderLayout.PAGE_START);
 
-    //init new/edit buttons
+    //init new/edit/delete buttons
     JPanel bottomButtons = new JPanel();
     JButton newList = new JButton("New");
     newList.addActionListener(new ActionListener() {
@@ -105,8 +107,20 @@ public class Soundboard {
       }
     });
     JButton editList = new JButton("Edit");
+    editList.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        editList();
+      }
+    });
+    JButton deleteList = new JButton("Delete");
+    deleteList.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        deleteList();
+      }
+    });
     bottomButtons.add(newList);
     bottomButtons.add(editList);
+    bottomButtons.add(deleteList);
     leftSide.add(bottomButtons, BorderLayout.PAGE_END);
     return leftSide;
   }
@@ -227,6 +241,10 @@ public class Soundboard {
 
   public void changeList(int index) {
     int selectedList = listOfLists.getSelectedIndex();
+    if(selectedList == -1) {
+      cardLayout.show(gridCards, Integer.toString(-1));
+      return;
+    }
     cardLayout.show(gridCards, Integer.toString(listViewControllers.get(selectedList).getList().getID()));
     mainFrame.pack();
     mainFrame.validate();
@@ -234,7 +252,6 @@ public class Soundboard {
 
   public void editSound(SoundPanel p) {
     Sound s = p.getSound();
-    System.out.println(s.getListID());
     SoundDialog d = new SoundDialog(s, listViewControllers, mainFrame);
     d.showDialog();
     if(d.getOk()) {
@@ -278,6 +295,24 @@ public class Soundboard {
         listViewControllers.get(i).soundWasRemoved(s);
       }
     }
+  }
+
+  public void editList() {
+
+  }
+
+  public void deleteList() {
+    ListViewController lvc = listViewControllers.get(listOfLists.getSelectedIndex());
+    if(lvc.getList().getID() == -1) {
+      return;
+    }
+    int[] displacedIDs = lvc.willDelete();
+    ListViewController mainList = listViewControllers.get(0);
+    listViewControllers.remove(lvc);
+    listModel.removeElement(lvc);
+    dao.deleteList(lvc.getList().getID());
+    listOfLists.setSelectedIndex(0);
+    SwingUtilities.updateComponentTreeUI(mainFrame); //<3
   }
 
   public static void main(String[] args) throws Exception {
@@ -324,4 +359,3 @@ class PopClickListener extends MouseAdapter {
     menu.show(e.getComponent(), e.getX(), e.getY());
   }
 }
-
