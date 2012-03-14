@@ -6,9 +6,13 @@
   <property name="build" location="build"/>
   <property name="db" location="soundboard.db"/>
   <property name="sounds" location="Sounds"/>
+  <property name="jarfile" location="zanzibar.jar"/>
+  <property name="icon" location="zanzibar_icon.png"/>
+  <property name="jlayer" location="lib/jl1.0.1.jar"/>
+  <property name="sqlite" location="lib/sqlitejdbc-v056.jar"/>
 
   <path id="class.path">
-    <fileset dir="lib">
+    <fileset dir="${lib}">
       <include name="**/*.jar" />
     </fileset>
   </path>
@@ -30,6 +34,18 @@
     <java classname="Zanzibar" classpath="${build}" fork="true">
       <classpath refid="class.path" />
     </java>
+  </target>
+
+  <target name="jar">
+    <jar destfile="${jarfile}" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Main-Class" value="Zanzibar"/>
+        <attribute name="Class-Path" value="."/>
+      </manifest>
+      <fileset dir="${build}"/>
+      <zipfileset excludes="META-INF/*.SF" src="${jlayer}"/>
+      <zipfileset excludes="META-INF/*.SF" src="${sqlite}"/>
+    </jar>
   </target>
 
   <target name="clean"
