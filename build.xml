@@ -38,6 +38,7 @@
   </target>
 
   <target name="jar">
+    <delete file="${jarfile}"/>
     <jar destfile="${jarfile}" filesetmanifest="mergewithoutmain">
       <manifest>
         <attribute name="Main-Class" value="Zanzibar"/>
