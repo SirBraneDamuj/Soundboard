@@ -1,31 +1,25 @@
 import java.io.File;
 import java.io.IOException;
 
-public class Sound {
+public class Sound extends Model {
+  private int id;
   private String name;
   private String description;
+  private int listID;
   private File file;
 
-  public Sound(String name, String description, File file) {
-    this.name = name;
-    this.description = description;
+  public Sound(int id, int listID, String name, String description, File file) {
+    super(id, name, description);
+    this.listID = listID;
     this.file = file;
   }
 
-  public String getName() {
-    return name;
+  public int getListID() {
+    return this.listID;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
+  public void setListID(int listID) {
+    this.listID = listID;
   }
 
   public File getFile() {
@@ -37,13 +31,6 @@ public class Sound {
   }
   
   public boolean save() {
-    return DAO.getInstance().insertValues("sounds", quotacise(name), quotacise(description), quotacise(file.getAbsolutePath()));
-  }
-
-  private String quotacise(String thing) {
-    if(thing == null || thing.equals("")) {
-      return "null";
-    }
-    return "\"" + thing + "\"";
+    return DAO.getInstance().saveSound(this);
   }
 }

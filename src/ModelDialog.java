@@ -1,25 +1,23 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 
-public class NewSoundDialog extends JDialog {
-  private JTextField name;
-  private JTextArea description;
-  private File f;
-  private boolean ok;
+public abstract class ModelDialog extends JDialog {
+  protected JPanel mainPanel;
+  protected JTextField name;
+  protected JTextArea description;
+  protected boolean ok;
 
-  public NewSoundDialog(File f, Frame owner) {
-    super(owner, "New sound", true);
-    this.f = f;
+  public ModelDialog(String titleText, String name, Frame owner) {
+    super(owner, titleText, true);
     this.name = new JTextField(30);
-    this.name.setText(f.getName());
+    this.mainPanel = new JPanel();
+    this.name.setText(name);
     this.description = new JTextArea(2, 30);
-    build();
+    buildBase();
   }
 
-  private void build() {
-    JPanel mainPanel = new JPanel();
+  private void buildBase() {
     mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
     mainPanel.add(Box.createVerticalGlue());
@@ -35,11 +33,20 @@ public class NewSoundDialog extends JDialog {
     JPanel descPanel = new JPanel();
     JLabel desc = new JLabel("Description: ");
     descPanel.add(desc);
-    descPanel.add(description);
+    JScrollPane descPane = new JScrollPane(description);
+    descPane.setPreferredSize(new Dimension(300, 100));
+    description.setLineWrap(true);
+    descPanel.add(descPane);
     mainPanel.add(descPanel);
 
     mainPanel.add(Box.createVerticalGlue());
 
+    this.add(mainPanel);
+  }
+
+  protected abstract void build();
+
+  protected void addButtons() {
     JPanel buttonsPanel = new JPanel();
     buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
     buttonsPanel.add(Box.createHorizontalGlue());
@@ -65,7 +72,6 @@ public class NewSoundDialog extends JDialog {
 
     mainPanel.add(Box.createVerticalGlue());
 
-    this.add(mainPanel);
   }
 
   public void showDialog() {
@@ -73,11 +79,11 @@ public class NewSoundDialog extends JDialog {
     setVisible(true);
   }
 
-  public String getSoundName() {
+  public String getName() {
     return name.getText();
   }
 
-  public String getSoundDescription() {
+  public String getDescription() {
     return description.getText();
   }
   

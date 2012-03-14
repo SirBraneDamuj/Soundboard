@@ -8,15 +8,19 @@ public class SoundPanel extends JPanel {
   public SoundPanel(Sound sound) {
     super();
     this.sound = sound;
-    this.play = new PlayButton(sound);
-    build();
+    setToolTipText(sound.getDescription());
+    initialize();
   }
 
-  private void build() {
+  private void initialize() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     setPreferredSize(new Dimension(140, 60));
-    add(play);
-    add(new JLabel("<html>" + sound.getName() + "</html>"));
-    setToolTipText(sound.getDescription());
+    add(new PlayButton(sound));
+    add(new JLabel("<html>" + sound.getName() + "</html>")); //for some reason this enables word wrap
+    addMouseListener(new PopClickListener());
+  }
+
+  public Sound getSound() {
+    return sound;
   }
 }
